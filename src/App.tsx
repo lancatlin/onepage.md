@@ -110,6 +110,12 @@ function App() {
     const file = await openDialog({
       multiple: false,
       directory: false,
+      filters: [
+        {
+          name: "Text files",
+          extensions: ["txt", "md"],
+        },
+      ],
     });
     console.log("Open file:", file);
     if (file) {
