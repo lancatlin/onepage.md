@@ -16,6 +16,7 @@ pub fn run() {
                 .text("open", "Open File")
                 .text("save", "Save File")
                 .text("filename", "")
+                .text("status", "Status")
                 .build()?;
 
             app.set_menu(menu.clone())?;

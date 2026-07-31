@@ -3,6 +3,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import "./App.css";
 import { open as openDialog, save } from "@tauri-apps/plugin-dialog";
 import { readTextFile, writeTextFile } from "@tauri-apps/plugin-fs";
+import { useHotkeys } from "react-hotkeys-hook";
 
 const MAX_FONT_SIZE = 32; // px — comfortable size for reading lyrics at a distance
 const MIN_FONT_SIZE = 16; // px — floor before we stop shrinking further
@@ -39,6 +40,7 @@ function measureLongestLineWidth(editor: HTMLElement): number {
 
 function App() {
   const [filename, setFilename] = useState<string | null>(null);
+  const [status, setStatus] = useState("");
   const editorRef = useRef<HTMLDivElement>(null);
   const frameRef = useRef<number | undefined>(undefined);
   const menuRef = useRef<Menu | undefined>(undefined);
@@ -117,6 +119,7 @@ function App() {
 
       editor.innerText = text;
       recomputeColumns();
+      setStatus("");
     }
   }, []);
 
@@ -141,8 +144,16 @@ function App() {
     if (path && contents) {
       await writeTextFile(path, contents);
       console.log("File written to", path);
+      setStatus("All changes saved");
     }
   }, [filename]);
+
+  useHotkeys("ctrl+o", () => openFile(), [openFile], {
+    enableOnContentEditable: true,
+  });
+  useHotkeys("ctrl+s", () => saveFile(), [saveFile], {
+    enableOnContentEditable: true,
+  });
 
   useEffect(() => {
     const setupMenu = async () => {
@@ -162,6 +173,10 @@ function App() {
             id: "filename",
             text: filename ?? "",
           },
+          {
+            id: "status",
+            text: status,
+          },
         ],
       });
       menuRef.current = menu;
@@ -169,23 +184,7 @@ function App() {
     };
     setupMenu();
     return () => {};
-  }, [filename, openFile, saveFile]);
-
-  // useEffect(() => {
-  //   const updateMenuText = async () => {
-  //     const menu = menuRef.current;
-  //     console.log("update menu text:", filename, "menu", menu);
-  //     if (menu) {
-  //       const filenameItem = await menu.get("filename");
-  //       console.log(filenameItem);
-  //       if (filenameItem) {
-  //         await filenameItem.setText(filename ?? "");
-  //       }
-  //     }
-  //   };
-
-  //   updateMenuText();
-  // }, [filename]);
+  }, [filename, status, openFile, saveFile]);
 
   useEffect(() => {
     recomputeColumns();
@@ -199,6 +198,7 @@ function App() {
   const handleInput = () => {
     if (frameRef.current) cancelAnimationFrame(frameRef.current);
     frameRef.current = requestAnimationFrame(recomputeColumns);
+    setStatus("Changes unsaved");
   };
 
   return (
