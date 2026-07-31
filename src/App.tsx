@@ -1,5 +1,8 @@
-import { useCallback, useEffect, useRef } from "react";
+import { Menu } from "@tauri-apps/api/menu";
+import { useCallback, useEffect, useRef, useState } from "react";
 import "./App.css";
+import { open as openDialog, save } from "@tauri-apps/plugin-dialog";
+import { readTextFile, writeTextFile } from "@tauri-apps/plugin-fs";
 
 const MAX_FONT_SIZE = 32; // px — comfortable size for reading lyrics at a distance
 const MIN_FONT_SIZE = 16; // px — floor before we stop shrinking further
@@ -35,8 +38,10 @@ function measureLongestLineWidth(editor: HTMLElement): number {
 }
 
 function App() {
+  const [filename, setFilename] = useState<string | null>(null);
   const editorRef = useRef<HTMLDivElement>(null);
   const frameRef = useRef<number | undefined>(undefined);
+  const menuRef = useRef<Menu | undefined>(undefined);
 
   // Picks the largest font size (and matching column count) that lets every
   // lyric line fit on screen with no wrapping and no scrolling: columns are
@@ -96,6 +101,92 @@ function App() {
     editor.style.columnCount = String(bestColumns);
   }, []);
 
+  const openFile = useCallback(async () => {
+    const editor = editorRef.current;
+    if (!editor) return;
+
+    const file = await openDialog({
+      multiple: false,
+      directory: false,
+    });
+    console.log("Open file:", file);
+    if (file) {
+      setFilename(file);
+      const text = await readTextFile(file);
+      console.log("content", text);
+
+      editor.innerText = text;
+      recomputeColumns();
+    }
+  }, []);
+
+  const saveFile = useCallback(async () => {
+    console.log("save file", filename);
+    const editor = editorRef.current;
+    const contents = editor?.innerText;
+    let path = filename;
+    if (!path) {
+      path = await save({
+        filters: [
+          {
+            name: "Text files",
+            extensions: ["txt", "md"],
+          },
+        ],
+      });
+      if (path) {
+        setFilename(path);
+      }
+    }
+    if (path && contents) {
+      await writeTextFile(path, contents);
+      console.log("File written to", path);
+    }
+  }, [filename]);
+
+  useEffect(() => {
+    const setupMenu = async () => {
+      const menu = await Menu.new({
+        items: [
+          {
+            id: "open",
+            text: "Open File",
+            action: openFile,
+          },
+          {
+            id: "save",
+            text: "Save File",
+            action: saveFile,
+          },
+          {
+            id: "filename",
+            text: filename ?? "",
+          },
+        ],
+      });
+      menuRef.current = menu;
+      await menu.setAsAppMenu();
+    };
+    setupMenu();
+    return () => {};
+  }, [filename, openFile, saveFile]);
+
+  // useEffect(() => {
+  //   const updateMenuText = async () => {
+  //     const menu = menuRef.current;
+  //     console.log("update menu text:", filename, "menu", menu);
+  //     if (menu) {
+  //       const filenameItem = await menu.get("filename");
+  //       console.log(filenameItem);
+  //       if (filenameItem) {
+  //         await filenameItem.setText(filename ?? "");
+  //       }
+  //     }
+  //   };
+
+  //   updateMenuText();
+  // }, [filename]);
+
   useEffect(() => {
     recomputeColumns();
     const editor = editorRef.current;
@@ -111,15 +202,17 @@ function App() {
   };
 
   return (
-    <div
-      ref={editorRef}
-      contentEditable
-      suppressContentEditableWarning
-      onInput={handleInput}
-      data-placeholder="Type or paste your lyrics..."
-      className="h-screen w-screen overflow-hidden outline-none bg-white p-10 leading-relaxed font-medium text-gray-900 empty:before:content-[attr(data-placeholder)] empty:before:text-gray-300"
-      style={{ whiteSpace: "pre-wrap", fontSize: `${MAX_FONT_SIZE}px` }}
-    />
+    <div>
+      <div
+        ref={editorRef}
+        contentEditable
+        suppressContentEditableWarning
+        onInput={handleInput}
+        data-placeholder="Type or paste your lyrics..."
+        className="h-screen w-screen overflow-hidden outline-none bg-white p-10 leading-relaxed font-medium text-gray-900 empty:before:content-[attr(data-placeholder)] empty:before:text-gray-300"
+        style={{ whiteSpace: "pre-wrap", fontSize: `${MAX_FONT_SIZE}px` }}
+      />
+    </div>
   );
 }
 
