@@ -12,3 +12,19 @@ A text editor that put all content in one page. Designed for singer-songwriter. 
 ## Installation
 
 Download the program in [Releases](https://github.com/lancatlin/onepage.md/releases).
+
+## Development
+
+Prerequisite:
+
+- [Bun](https://bun.com/) (Should also work with NodeJS)
+- Cargo: can be installed using [Rustup](https://rustup.rs/)
+
+```bash
+git clone https://github.com/lancatlin/onepage.md.git
+cd onepage.md
+bun install
+
+# run dev server
+bun run tauri dev
+```
