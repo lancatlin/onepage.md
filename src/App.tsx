@@ -6,7 +6,7 @@ import { readTextFile, writeTextFile } from "@tauri-apps/plugin-fs";
 import { useHotkeys } from "react-hotkeys-hook";
 
 const MAX_FONT_SIZE = 32; // px — comfortable size for reading lyrics at a distance
-const MIN_FONT_SIZE = 16; // px — floor before we stop shrinking further
+const MIN_FONT_SIZE = 11; // px — floor before we stop shrinking further
 const FONT_STEP = 1; // px
 const LEADING_RATIO = 1.625; // matches Tailwind's leading-relaxed
 const ABSOLUTE_MIN_COLUMN_WIDTH = 100; // px — sanity floor regardless of font size

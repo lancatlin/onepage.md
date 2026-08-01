@@ -1,8 +1,8 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "songwriter",
+  "productName": "OnePage.md",
   "version": "0.1.0",
-  "identifier": "cc.wancat.songwriter",
+  "identifier": "cc.wancat.onepage",
   "build": {
     "beforeDevCommand": "bun run dev",
     "devUrl": "http://localhost:1420",
@@ -12,7 +12,7 @@
   "app": {
     "windows": [
       {
-        "title": "songwriter",
+        "title": "OnePage.md",
         "width": 800,
         "height": 600
       }

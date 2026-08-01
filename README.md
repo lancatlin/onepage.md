@@ -1,7 +1,14 @@
-# Tauri + React + Typescript
+# OnePage.md
 
-This template should help get you started developing with Tauri, React and Typescript in Vite.
+A text editor that put all content in one page. Designed for singer-songwriter. Never need to scroll the lyrics again!
 
-## Recommended IDE Setup
+![OnePage.md Screenshot](./screenshots/demo1.png)
 
-- [VS Code](https://code.visualstudio.com/) + [Tauri](https://marketplace.visualstudio.com/items?itemName=tauri-apps.tauri-vscode) + [rust-analyzer](https://marketplace.visualstudio.com/items?itemName=rust-lang.rust-analyzer)
+## Features
+
+- Multi-Column: display the content in multi-column, fully utilise your screen space.
+- Dynamic layout: adjust the font size and number of columns automatically
+
+## Installation
+
+Download the program in [Releases](https://github.com/lancatlin/onepage.md/releases).
