@@ -1,4 +1,4 @@
-import { Menu } from "@tauri-apps/api/menu";
+import { Menu, Submenu, PredefinedMenuItem } from "@tauri-apps/api/menu";
 import { useCallback, useEffect, useRef, useState } from "react";
 import "./App.css";
 import { open as openDialog, save } from "@tauri-apps/plugin-dialog";
@@ -163,6 +163,15 @@ function App() {
 
   useEffect(() => {
     const setupMenu = async () => {
+      const editMenu = await Submenu.new ({
+        text: "Edit",
+        items: [
+          await PredefinedMenuItem.new({ item: "Cut" }),
+          await PredefinedMenuItem.new({ item: "Copy" }),
+          await PredefinedMenuItem.new({ item: "Paste" }),
+          await PredefinedMenuItem.new({ item: "SelectAll" }),
+        ]
+      });
       const menu = await Menu.new({
         items: [
           {
@@ -175,6 +184,7 @@ function App() {
             text: "Save File",
             action: saveFile,
           },
+          editMenu,
           {
             id: "filename",
             text: filename ?? "",
@@ -223,3 +233,4 @@ function App() {
 }
 
 export default App;
+
